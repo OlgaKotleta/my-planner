@@ -1,95 +1,126 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+'use client'
+import { Box, Container, Typography } from "@mui/material";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import Tasks from "./components/TasksList/TasksList";
+import Ready from "./components/Ready/Ready";
+import Idea from "./components/Idea/Idea";
+
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [activeButton,setActiveButton] = useState(0)
+  //временное решение защиты "/"
+  const router = useRouter()
+  useEffect(() => {
+    const userData = localStorage.getItem('user')
+  
+    try {
+      if (!userData) {
+         router.push('auth/login')
+       console.log('userData', userData)
+        return
+     }
+      const user = JSON.parse(userData)
+      console.log('userData, user', userData, user)
+      // ПРОВЕРКА НАЛИЧИЯ ID
+      if (!user?.id) {
+        router.push('auth/login')
+        console.log(' user.id', user.id)
+        return
+      }
+    } catch (error) {
+      router.push('auth/login')
+    }
+  }, [router])
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+  return (
+    <div >
+<Box>
+
+  <Box sx={{
+    display:"flex",
+    justifyContent:"center",
+    gap:'24px',
+    marginTop:'16px',
+    
+  }}>
+    
+     <Box 
+      onClick={() => setActiveButton(0)}
+     sx={{
+       display:'flex',
+       justifyContent:'center',
+       width:'10vw',
+      minWidth:'120px',
+      cursor:'pointer',
+      backgroundColor:activeButton === 0 ? "#8BA0D7" : "#F3F5FF",
+      padding:'12px 60px 12px 60px',
+      borderRadius:'10px',
+      color: activeButton === 0 ? "white" : "#A2A2A2",
+      fontWeight:'Bold'
+     }}>
+      задачи
+      </Box>
+     <Box
+      onClick={() => setActiveButton(1)}
+     sx={{
+       display:'flex',
+       justifyContent:'center',
+       width:'10vw',
+      cursor:'pointer',
+      backgroundColor:activeButton === 1 ? "#8BA0D7" : "#F3F5FF",
+      padding:'12px 60px 12px 60px',
+      borderRadius:'10px',
+      color: activeButton === 1 ? "white" : "#A2A2A2",
+      fontWeight:'Bold'
+     }}>
+      сделано
+      </Box>
+     <Box
+     onClick={() => setActiveButton(2)} 
+     sx={{
+      display:'flex',
+      justifyContent:'center',
+      width:'10vw',
+      cursor:'pointer',
+      backgroundColor:activeButton === 2 ? "#8BA0D7" : "#F3F5FF",
+      padding:'12px 60px 12px 60px',
+      borderRadius:'10px',
+      color: activeButton === 2 ? "white" : "#A2A2A2",
+      fontWeight:'Bold'
+     }}>
+      идеи
+      </Box>
+<Box sx={{
+    color:'white',
+    backgroundColor:'#8BA0D7',
+    display:'flex',
+    justifyContent:'center',
+    width:'2vw',
+     padding:'0px 0px 0px 0px',
+    borderRadius:'10px',
+    fontSize:'32px',
+    alignItems:'center',
+    cursor:'pointer',
+
+}}>
+  +
+</Box>
+     </Box>
+
+{/* -------------tasks */}
+<Box sx={{
+  display:"flex",
+  justifyContent:'center',
+  mt:'32px'
+}}> {
+activeButton == 0 ? <Tasks/>:
+activeButton == 1 ? <Ready/>:
+<Idea />
+}</Box>
+
+</Box>
+</div>
   );
 }

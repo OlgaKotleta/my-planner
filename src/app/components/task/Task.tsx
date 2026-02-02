@@ -1,15 +1,36 @@
 import { Box, Checkbox, FormControlLabel, Typography } from "@mui/material";
 import { useState } from "react";
 
-export default function Task(){
+
+
+export default function Task({ id, title, description, status, createdAt, onStatusChange  }: TaskProps){
     const [isChecked,setIsChecked] = useState(false)
     const [isVisible, setIsVisible] = useState(true)
-    const handleChange = (e: { target: { checked: boolean | ((prevState: boolean) => boolean); }; }) => {
-        setIsChecked(e.target.checked)
-        if (e.target.checked){
-            setTimeout(()=>{
-                setIsVisible(false)
-            },500)
+    const [isLoading, setIsLoading] = useState(false)
+    const handleChange = async (e: { target: { checked: boolean } }) => {
+        const newChecked = e.target.checked;
+        setIsLoading(true);
+        
+        try {
+            // Сначала делаем запрос к беку
+            const newStatus = newChecked ? 'done' : 'todo';
+            await onStatusChange(id, newStatus);
+            
+            // Если успешно - обновляем состояние
+            setIsChecked(newChecked);
+            
+            // Прячем задачу если она выполнена
+            if (newChecked) {
+                setTimeout(() => {
+                    setIsVisible(false);
+                }, 500);
+            }
+        } catch (error) {
+            console.error('Ошибка изменения статуса:', error);
+            // Откатываем чекбокс если ошибка
+            setIsChecked(!newChecked);
+        } finally {
+            setIsLoading(false);
         }
     }
     return <>
@@ -26,20 +47,24 @@ export default function Task(){
         display:isVisible? 'flex':'none',
         
         }}>
-            <Typography sx={{
-              
-            textDecoration: isChecked?'line-through' : 'none'
-
-            }}> Постирать носки</Typography>
-        
+             <Box>
+                <Typography sx={{
+                    textDecoration: isChecked ? 'line-through' : 'none',
+                    fontWeight: 'bold'
+                }}>
+                    {title}
+                </Typography>
+                </Box>
         <Box>
-      <FormControlLabel
-        control={<Checkbox 
-            checked={isChecked}
-            onChange={handleChange}
-        />}
+            {status=='todo'?
+       <FormControlLabel
+       control={<Checkbox 
+           checked={isChecked}
+           onChange={handleChange}
+           
+       />}
         label=""
-      />
+      />:<></>}
     </Box>
     </Box>
     
